@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chandni's Study Tracker 🎯</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f0f14; --card: #1a1a24; --border: #2a2a3a;
+    --accent: #a855f7; --accent2: #ec4899; --green: #22c55e;
+    --red: #ef4444; --yellow: #f59e0b; --text: #e2e8f0; --muted: #64748b;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 20px; }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+  .header { text-align: center; padding: 30px 20px 20px; }
+  .header h1 { font-size: 2rem; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
+  .points-banner { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 16px auto; max-width: 500px; text-align: center; }
+  .points-number { font-family: 'Space Grotesk', sans-serif; font-size: 4rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+  .points-label { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .instagram-status { margin-top: 16px; padding: 12px 20px; border-radius: 30px; font-weight: 600; font-size: 0.95rem; display: inline-block; transition: all 0.3s; }
+  .status-safe { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .status-danger { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .threshold-bar { margin-top: 16px; background: var(--border); border-radius: 10px; height: 10px; overflow: hidden; }
+  .threshold-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.5s ease; }
+  .threshold-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; color: var(--text); margin: 24px 0 12px; padding-left: 4px; }
+  .day-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-tab { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 0.85rem; transition: all 0.2s; flex-shrink: 0; }
+  .day-tab.active { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; border-color: transparent; }
+  .tasks-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; user-select: none; }
+  .task-card:hover { border-color: var(--accent); transform: translateX(4px); }
+  .task-card.done { border-color: var(--green); background: rgba(34,197,94,0.08); }
+  .task-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; font-size: 0.75rem; }
+  .task-card.done .task-check { background: var(--green); border-color: var(--green); color: white; }
+  .task-info { flex: 1; }
+  .task-name { font-size: 0.95rem; font-weight: 500; }
+  .task-time { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .task-pts { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--accent); }
+  .task-card.done .task-pts { color: var(--green); }
+  .weekly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+  .week-day-cell { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; }
+  .week-day-name { font-size: 0.65rem; color: var(--muted); }
+  .week-day-pts { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; margin-top: 4px; color: var(--accent); }
+  .reset-btn { display: block; margin: 24px auto 0; padding: 10px 28px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+  .emoji-pop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 5rem; pointer-events: none; animation: popfade 1s forwards; z-index: 999; }
+  @keyframes popfade { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); } 50% { opacity: 1; transform: translate(-50%, -60%) scale(1.3); } 100% { opacity: 0; transform: translate(-50%, -80%) scale(1); } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Chandni's Study Tracker 🎯</h1>
+  <p>Points kam = Instagram band 📵</p>
+</div>
+<div class="points-banner">
+  <div class="points-number" id="totalPoints">0</div>
+  <div class="points-label">Total Points This Week</div>
+  <div class="instagram-status status-safe" id="instaStatus">✅ Instagram SAFE hai!</div>
+  <div class="threshold-bar" style="margin-top:14px">
+    <div class="threshold-fill" id="thresholdFill" style="width:0%"></div>
+  </div>
+  <div class="threshold-labels"><span>0</span><span>🎯 Goal: 70 pts</span><span>100</span></div>
+</div>
+<div class="section-title">📅 Aaj ka din chuno</div>
+<div class="day-tabs" id="dayTabs"></div>
+<div class="section-title">✅ Tasks</div>
+<div class="tasks-grid" id="tasksGrid"></div>
+<div class="section-title">📊 Weekly Summary</div>
+<div class="weekly-grid" id="weeklyGrid"></div>
+<button class="reset-btn" onclick="resetWeek()">🗑️ Week Reset Karo</button>
+<script>
+const GOAL = 70;
+const INSTAGRAM_THRESHOLD = 50;
+const schedule = {
+  Monday: [
+    { name: "🌅 Morning Revision (DS/DBMS)", time: "7:00 - 7:30 AM", pts: 5 },
+    { name: "🔴 Data Structures", time: "7:00 - 8:00 PM", pts: 10 },
+    { name: "🔴 DBMS", time: "8:30 - 9:30 PM", pts: 10 },
+    { name: "📝 DS Quick Notes", time: "9:30 - 10:00 PM", pts: 5 },
+    { name: "🎮 Unity Basics", time: "10:00 - 10:45 PM", pts: 5 },
+  ],
+  Tuesday: [
+    { name: "🌅 Morning Revision", time: "7:00 - 7:30 AM", pts: 5 },
+    { name: "☁️ Cloud Computing", time: "7:00 - 8:00 PM", pts: 8 },
+    { name: "🐘 PHP Practice", time: "8:30 - 9:30 PM", pts: 8 },
+    { name: "📝 DBMS Revision", time: "9:30 - 10:00 PM", pts: 5 },
+    { name: "🎮 C# Scripting", time: "10:00 - 10:45 PM", pts: 5 },
+  ],
+  Wednesday: [
+    { name: "🌅 Morning Revision", time: "7:00 - 7:30 AM", pts: 5 },
+    { name: "🔴 Data Structures", time: "7:00 - 8:00 PM", pts: 10 },
+    { name: "🐍 Python Practice", time: "8:30 - 9:30 PM", pts: 8 },
+    { name: "📝 DS Problems Solve", time: "9:30 - 10:00 PM", pts: 5 },
+    { name: "🎮 Unity Game Logic", time: "10:00 - 10:45 PM", pts: 5 },
+  ],
+  Thursday: [
+    { name: "🌅 Morning Revision", time: "7:00 - 7:30 AM", pts: 5 },
+    { name: "🔴 DBMS", time: "7:00 - 8:00 PM", pts: 10 },
+    { name: "☁️ Cloud Computing", time: "8:30 - 9:30 PM", pts: 8 },
+    { name: "📝 DBMS Notes", time: "9:30 - 10:00 PM", pts: 5 },
+    { name: "🎮 Group Project", time: "10:00 - 10:45 PM", pts: 5 },
+  ],
+  Friday: [
+    { name: "🌅 Morning Revision", time: "7:00 - 7:30 AM", pts: 5 },
+    { name: "🐘 PHP + 🐍 Python", time: "7:00 - 8:00 PM", pts: 8 },
+    { name: "🔴 Data Structures", time: "8:30 - 9:30 PM", pts: 10 },
+    { name: "📝 Revision", time: "9:30 - 10:00 PM", pts: 5 },
+    { name: "🎮 Mini Game Banao", time: "10:00 - 10:45 PM", pts: 5 },
+  ],
+  Saturday: [
+    { name: "🌅 Morning Revision", time: "7:00 - 7:30 AM", pts: 5 },
+    { name: "🔴 DBMS", time: "7:00 - 8:00 PM", pts: 10 },
+    { name: "🔴 Data Structures", time: "8:30 - 9:30 PM", pts: 10 },
+    { name: "📝 Weak Topics", time: "9:30 - 10:00 PM", pts: 5 },
+    { name: "🎮 Group Project", time: "10:00 - 10:45 PM", pts: 5 },
+  ],
+  Sunday: [
+    { name: "😴 Rest (deserved!)", time: "Morning", pts: 3 },
+    { name: "📝 Previous Week Revision", time: "Evening", pts: 8 },
+    { name: "📋 Next Week Plan", time: "Evening", pts: 4 },
+    { name: "🎮 Long Game Dev Session", time: "10:00 - 11:30 PM", pts: 8 },
+  ],
+};
+const days = Object.keys(schedule);
+let state = JSON.parse(localStorage.getItem('chandni_tracker') || 'null') || { selectedDay: days[0], checked: {} };
+function save() { localStorage.setItem('chandni_tracker', JSON.stringify(state)); }
+function getTotalPoints() { let total = 0; for (const day of days) { schedule[day].forEach((t, i) => { if (state.checked[`${day}-${i}`]) total += t.pts; }); } return total; }
+function getDayPoints(day) { let pts = 0; schedule[day].forEach((t, i) => { if (state.checked[`${day}-${i}`]) pts += t.pts; }); return pts; }
+function updateBanner() {
+  const total = getTotalPoints();
+  document.getElementById('totalPoints').textContent = total;
+  document.getElementById('thresholdFill').style.width = Math.min((total/100)*100,100) + '%';
+  const statusEl = document.getElementById('instaStatus');
+  if (total >= INSTAGRAM_THRESHOLD) { statusEl.textContent = '✅ Instagram SAFE hai!'; statusEl.className = 'instagram-status status-safe'; }
+  else { statusEl.textContent = '📵 Instagram BAND! Pehle padho!'; statusEl.className = 'instagram-status status-danger'; }
+}
+function renderDayTabs() {
+  const container = document.getElementById('dayTabs'); container.innerHTML = '';
+  days.forEach(day => { const btn = document.createElement('button'); btn.className = 'day-tab' + (state.selectedDay === day ? ' active' : ''); btn.textContent = day; btn.onclick = () => { state.selectedDay = day; save(); render(); }; container.appendChild(btn); });
+}
+function renderTasks() {
+  const container = document.getElementById('tasksGrid'); container.innerHTML = '';
+  schedule[state.selectedDay].forEach((task, i) => {
+    const key = `${state.selectedDay}-${i}`; const done = !!state.checked[key];
+    const card = document.createElement('div'); card.className = 'task-card' + (done ? ' done' : '');
+    card.innerHTML = `<div class="task-check">${done ? '✓' : ''}</div><div class="task-info"><div class="task-name">${task.name}</div><div class="task-time">${task.time}</div></div><div class="task-pts">+${task.pts} pts</div>`;
+    card.onclick = () => { state.checked[key] = !state.checked[key]; save(); if (state.checked[key]) showEmoji('🎉'); render(); };
+    container.appendChild(card);
+  });
+}
+function renderWeeklyGrid() {
+  const container = document.getElementById('weeklyGrid'); container.innerHTML = '';
+  days.forEach(day => { const cell = document.createElement('div'); cell.className = 'week-day-cell'; cell.innerHTML = `<div class="week-day-name">${day.slice(0,3)}</div><div class="week-day-pts">${getDayPoints(day)}</div>`; container.appendChild(cell); });
+}
+function showEmoji(emoji) { const el = document.createElement('div'); el.className = 'emoji-pop'; el.textContent = emoji; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
+function resetWeek() { if (confirm('Pura week reset karna hai? Sab points jayenge! 😱')) { state.checked = {}; save(); render(); } }
+function render() { updateBanner(); renderDayTabs(); renderTasks(); renderWeeklyGrid(); }
+render();
+</script>
+</body>
+</html>
